@@ -1,6 +1,6 @@
 * AI Code Interface
 
-An Emacs interface for AI-assisted software development, designed to integrate seamlessly with *AI-driven agile development workflow*. The purpose is to provide a uniform interface and experience for different AI backend.
+An Emacs interface for AI-assisted software development. *The purpose is to provide a uniform interface and experience for different AI backend*. It is also designed to integrate seamlessly with AI-driven agile development workflow.
 
 - Current it support these AI coding CLI:
   - [[https://github.com/anthropics/claude-code][Claude Code]]
