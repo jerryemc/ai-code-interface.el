@@ -10,7 +10,7 @@ An Emacs interface for AI-assisted software development. *The purpose is to prov
 
 - I switch across different CLI based AI tool in emacs: Claude Code / Gemini CLI / Aider / OpenAI Codex. If you also use different AI tools inside emacs, but want to keep same user interface and experience, this package is for you.
 
-- Lots of feature and tool ported from [[https://github.com/tninja/aider.el][aider.el]], if you like the feature in aider.el, but wish to switch to Claude Code / Gemini CLI / OpenAI Codex, this package is also for you.
+- Lots of feature and tool ported from [[https://github.com/tninja/aider.el][aider.el]], if you like the feature in aider.el, but wish to switch to modern AI coding CLI, this package is also for you.
 
 - Screenshot
 
@@ -18,7 +18,7 @@ An Emacs interface for AI-assisted software development. *The purpose is to prov
 
 ** Installation
 
-*** Using straight.el (Recommended)
+*** Using straight.el
 
 #+begin_src emacs-lisp
   (use-package ai-code-interface
@@ -86,6 +86,16 @@ An Emacs interface for AI-assisted software development. *The purpose is to prov
   - *Transient Menu*: A clean, organized menu (`C-c a`) for easy command discovery.
   - *Helm/Completing-Read*: Enhanced input completion with history.
   - *Clipboard Utilities*: Easily copy file paths (formatted for AI prompts) and open clipboard paths in Dired.
+- *AI assisted bash command generation and running*
+  - C-c a ! in a dired buffer, or shell / eshell / vterm buffer, and start type command lead with : character, eg, :count lines of python code recursively, it will generate the full command with ai for review, and then run it in a compile buffer.
+- *MCP debugging feature*
+  - C-c a m to automatically generate mcp inspector command for python MCP project.
+- *Project Initialization*
+  - C-c a . to initialize .projectile and create gtags for the project. For easy code navigation.
+
+** Add a new AI coding CLI backend 
+
+- [[https://github.com/tninja/ai-code-interface.el/pull/2][This PR]] add the github-copilot-cli (require claude-code.el). It can be an example to add basic support for other AI coding CLI.
 
 ** [[https://github.com/tninja/aider.el/blob/main/appendix.org#be-careful-about-ai-generated-code][Why Agile development with AI?]]
 
