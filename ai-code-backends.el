@@ -95,7 +95,7 @@ When called from Lisp code, sends CMD directly without prompting."
      :switch  github-copilot-cli-switch-to-buffer
      :send    github-copilot-cli-send-command
      :resume  github-copilot-cli-resume
-     :config  "~/.config/mcp-config.json" ;; https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli
+     :config  "~/.copilot/mcp-config.json"
      :upgrade "npm install -g @github/copilot"
      :cli     "copilot")
     (codex
