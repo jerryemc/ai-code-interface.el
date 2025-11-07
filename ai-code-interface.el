@@ -73,12 +73,14 @@ with a newline separator."
 
 (defun ai-code--get-clipboard-text ()
   "Return the current clipboard contents as a plain string, or nil if unavailable."
-  (let ((selection (when (fboundp 'gui-get-selection)
-                     (or (gui-get-selection 'CLIPBOARD 'UTF8_STRING)
-                         (gui-get-selection 'CLIPBOARD 'STRING))))
-        (kill-text (condition-case nil
-                       (current-kill 0 t)
-                     (error nil))))
+  (let* ((selection (when (fboundp 'gui-get-selection)
+                      (or (let ((text (gui-get-selection 'CLIPBOARD 'UTF8_STRING)))
+                            (and (stringp text) (not (string-empty-p text)) text))
+                          (let ((text (gui-get-selection 'CLIPBOARD 'STRING)))
+                            (and (stringp text) (not (string-empty-p text)) text)))))
+         (kill-text (condition-case nil
+                        (current-kill 0 t)
+                      (error nil))))
     (let ((text (or selection kill-text)))
       (when (stringp text)
         (substring-no-properties text)))))
