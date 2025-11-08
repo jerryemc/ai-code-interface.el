@@ -19,6 +19,7 @@
 
 (declare-function ai-code-read-string "ai-code-input")
 (declare-function ai-code--insert-prompt "ai-code-prompt-mode")
+(declare-function ai-code--get-clipboard-text "ai-code-interface")
 
 (defun ai-code--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.
@@ -34,7 +35,7 @@ ignoring leading whitespace."
 ;;;###autoload
 (defun ai-code-code-change (arg)
   "Generate prompt to change code under cursor or in selected region.
-With a prefix argument (universal-argument), prompt for a change without adding any context.
+With a prefix argument (C-u), append the clipboard contents as context.
 If a region is selected, change that specific region.
 Otherwise, change the function under cursor.
 If nothing is selected and no function context, prompts for general code change.
@@ -42,35 +43,47 @@ Inserts the prompt into the AI prompt file and optionally sends to AI.
 
 Argument ARG is the prefix argument."
   (interactive "P")
-  (if arg
-      (let ((prompt (ai-code-read-string "Change code (no context): " "")))
-        (ai-code--insert-prompt prompt))
-    (unless buffer-file-name
-      (user-error "Error: buffer-file-name must be available"))
-    (let* ((function-name (which-function))
-           (region-active (region-active-p))
-           (region-text (when region-active
-                          (buffer-substring-no-properties (region-beginning) (region-end))))
-           (region-start-line (when region-active
-                                (line-number-at-pos (region-beginning))))
-           (prompt-label
-            (cond (region-active
-                   (if function-name
-                       (format "Change code in function %s: " function-name)
-                     "Change selected code: "))
-                  (function-name
-                   (format "Change function %s: " function-name))
-                  (t "Change code: ")))
-           (initial-prompt (ai-code-read-string prompt-label ""))
-           (files-context-string (ai-code--get-context-files-string))
-           (final-prompt
-            (concat initial-prompt
-                    (when region-text
-                      (format "\nCode from line %d:\n%s" region-start-line region-text))
-                    (when function-name (format "\nFunction: %s" function-name))
-                    files-context-string
-                    "\nNote: Please make the code change described above.")))
-      (ai-code--insert-prompt final-prompt))))
+  (unless buffer-file-name
+    (user-error "Error: buffer-file-name must be available"))
+  (let* ((clipboard-context (when arg (ai-code--get-clipboard-text)))
+         (function-name (which-function))
+         (region-active (region-active-p))
+         (region-text (when region-active
+                        (buffer-substring-no-properties (region-beginning) (region-end))))
+         (region-start-line (when region-active
+                              (line-number-at-pos (region-beginning))))
+         (prompt-label
+          (cond
+           ((and clipboard-context
+                 (string-match-p "\\S-" clipboard-context))
+            (cond
+             (region-active
+              (if function-name
+                  (format "Change code in function %s (clipboard context): " function-name)
+                "Change selected code (clipboard context): "))
+             (function-name
+              (format "Change function %s (clipboard context): " function-name))
+             (t "Change code (clipboard context): ")))
+           (region-active
+            (if function-name
+                (format "Change code in function %s: " function-name)
+              "Change selected code: "))
+           (function-name
+            (format "Change function %s: " function-name))
+           (t "Change code: ")))
+         (initial-prompt (ai-code-read-string prompt-label ""))
+         (files-context-string (ai-code--get-context-files-string))
+         (final-prompt
+          (concat initial-prompt
+                  (when region-text
+                    (format "\nCode from line %d:\n%s" region-start-line region-text))
+                  (when function-name (format "\nFunction: %s" function-name))
+                  files-context-string
+                  (when (and clipboard-context
+                            (string-match-p "\\S-" clipboard-context))
+                    (concat "\n\nClipboard context:\n" clipboard-context))
+                  "\nNote: Please make the code change described above.")))
+    (ai-code--insert-prompt final-prompt)))
 
 ;;;###autoload
 (defun ai-code-implement-todo (arg)

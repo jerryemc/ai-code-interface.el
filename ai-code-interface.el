@@ -153,9 +153,9 @@ Shows the current backend label to the right."
     ]
    ["AI Code Actions"
     (ai-code--infix-toggle-suffix)
-    ("c" "Code change (C-u: global)" ai-code-code-change)
+    ("c" "Code change (C-u: clipboard)" ai-code-code-change)
     ("i" "Implement TODO (C-u: keep it)" ai-code-implement-todo)
-    ("q" "Ask question (C-u: global)" ai-code-ask-question)
+    ("q" "Ask question (C-u: clipboard)" ai-code-ask-question)
     ("x" "Explain code" ai-code-explain)
     ("<SPC>" "Send command (C-u: clipboard)" ai-code-send-command)
     ]

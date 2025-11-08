@@ -16,11 +16,12 @@
 
 (declare-function ai-code-read-string "ai-code-input")
 (declare-function ai-code--insert-prompt "ai-code-prompt-mode")
+(declare-function ai-code--get-clipboard-text "ai-code-interface")
 
 ;;;###autoload
 (defun ai-code-ask-question (arg)
   "Generate prompt to ask questions about specific code.
-With a prefix argument (\M-x), prompt for a question without adding any context.
+With a prefix argument (C-u), append the clipboard contents as context.
 If current buffer is a file, keep existing logic.
 If current buffer is a dired buffer:
   - If there are files or directories marked, use them as context (use git repo relative path, start with @ character)
@@ -32,18 +33,17 @@ Inserts the prompt into the AI prompt file and optionally sends to AI.
 
 Argument ARG is the prefix argument."
   (interactive "P")
-  (if arg
-      (let ((question (ai-code-read-string "Ask question (no context): " "")))
-        (ai-code--insert-prompt question))
+  (let ((clipboard-context (when arg (ai-code--get-clipboard-text))))
     (cond
      ;; Handle dired buffer
      ((eq major-mode 'dired-mode)
-      (ai-code--ask-question-dired))
+      (ai-code--ask-question-dired clipboard-context))
      ;; Handle regular file buffer
-     (t (ai-code--ask-question-file)))))
+     (t (ai-code--ask-question-file clipboard-context)))))
 
-(defun ai-code--ask-question-dired ()
-  "Handle ask question for dired buffer."
+(defun ai-code--ask-question-dired (clipboard-context)
+  "Handle ask question for dired buffer.
+CLIPBOARD-CONTEXT is optional clipboard text to append as context."
   (let* ((all-marked (dired-get-marked-files))
          (file-at-point (dired-get-filename nil t))
          (truly-marked (remove file-at-point all-marked))
@@ -55,20 +55,32 @@ Argument ARG is the prefix argument."
          (git-relative-files (when context-files
                               (ai-code--get-git-relative-paths context-files)))
          (files-context-string (when git-relative-files
-                                (concat "\nFiles:\n" 
-                                       (mapconcat (lambda (f) (concat "@" f)) 
+                                (concat "\nFiles:\n"
+                                       (mapconcat (lambda (f) (concat "@" f))
                                                  git-relative-files "\n"))))
          (prompt-label (cond
+                        ((and clipboard-context
+                              (string-match-p "\\S-" clipboard-context))
+                         (if has-marks
+                             "Question about marked files/directories (clipboard context): "
+                           (if file-at-point
+                               (format "Question about %s (clipboard context): " (file-name-nondirectory file-at-point))
+                             "General question about directory (clipboard context): ")))
                         (has-marks "Question about marked files/directories: ")
                         (file-at-point (format "Question about %s: " (file-name-nondirectory file-at-point)))
                         (t "General question about directory: ")))
          (question (ai-code-read-string prompt-label ""))
-         (final-prompt (concat question files-context-string
+         (final-prompt (concat question
+                              files-context-string
+                              (when (and clipboard-context
+                                        (string-match-p "\\S-" clipboard-context))
+                                (concat "\n\nClipboard context:\n" clipboard-context))
                               "\nNote: This is a question only - please do not modify the code.")))
     (ai-code--insert-prompt final-prompt)))
 
-(defun ai-code--ask-question-file ()
-  "Handle ask question for regular file buffer."
+(defun ai-code--ask-question-file (clipboard-context)
+  "Handle ask question for regular file buffer.
+CLIPBOARD-CONTEXT is optional clipboard text to append as context."
   (let* ((file-extension (when buffer-file-name
                           (file-name-extension buffer-file-name)))
          (is-diff-or-patch (and file-extension
@@ -80,6 +92,18 @@ Argument ARG is the prefix argument."
                         (buffer-substring-no-properties (region-beginning) (region-end))))
          (prompt-label
           (cond
+           ((and clipboard-context
+                 (string-match-p "\\S-" clipboard-context))
+            (cond
+             (region-active
+              (if function-name
+                  (format "Question about selected code in function %s (clipboard context): " function-name)
+                "Question about selected code (clipboard context): "))
+             (function-name
+              (format "Question about function %s (clipboard context): " function-name))
+             (buffer-file-name
+              (format "General question about %s (clipboard context): " (file-name-nondirectory buffer-file-name)))
+             (t "General question (clipboard context): ")))
            (region-active
             (if function-name
                 (format "Question about selected code in function %s: " function-name)
@@ -98,6 +122,9 @@ Argument ARG is the prefix argument."
                   (when function-name
                     (format "\nFunction: %s" function-name))
                   files-context-string
+                  (when (and clipboard-context
+                            (string-match-p "\\S-" clipboard-context))
+                    (concat "\n\nClipboard context:\n" clipboard-context))
                   "\nNote: This is a question only - please do not modify the code.")))
     (ai-code--insert-prompt final-prompt)))
 
