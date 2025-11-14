@@ -359,7 +359,7 @@ region as content of that section."
   (interactive)
   (unless (region-active-p)
     (user-error "No region selected. Please select the text you want to save as notes"))
-  (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
+  (let* ((region-text (filter-buffer-substring (region-beginning) (region-end) nil))
          (git-root (condition-case nil
                        (magit-toplevel)
                      (error nil)))
