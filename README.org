@@ -41,6 +41,7 @@ An Emacs interface for AI-assisted software development. *The purpose is to prov
 - `magit`: Git integration
 - `transient`: For the menu system
 - Claude Code (`[[https://github.com/stevemolitor/claude-code.el][claude-code.el]]`)
+  - eat / vterm need to be installed to support various AI coding CLI backends.
 
 *** Optional Dependencies
 - `helm`: For an enhanced auto-completion experience (`ai-code-input.el`).
@@ -94,6 +95,11 @@ An Emacs interface for AI-assisted software development. *The purpose is to prov
 - Open a issue, Post information about the new AI coding CLI backend (eg. cursor CLI?), at least providing the command line name. You can also include the version upgrade command, how to resume, where the configuration files are located, and so on. We can ask GitHub Copilot to add support features based on the issue.
 
 ** [[https://github.com/tninja/aider.el/blob/main/appendix.org#be-careful-about-ai-generated-code][Why Agile development with AI?]]
+
+** FAQ
+
+- Q: Using OpenCode as backend, it might have performance issues with eat.el in Doom Emacs. [[https://github.com/tninja/ai-code-interface.el/issues/9#issuecomment-3543277108][Issue]]
+- A: Use vterm as backend, opencode won't trigger mouse hover and will not cause emacs flickering.
 
 ** Related emacs packages
 - Claude Code (`[[https://github.com/stevemolitor/claude-code.el][claude-code.el]]`)
