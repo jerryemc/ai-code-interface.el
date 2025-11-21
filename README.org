@@ -1,3 +1,5 @@
+[[file:./icon.png]]
+
 * AI Code Interface
 
 An Emacs interface for AI-assisted software development. *The purpose is to provide a uniform interface and experience for different AI backend*. It is also designed to integrate seamlessly with AI-driven agile development workflow.
