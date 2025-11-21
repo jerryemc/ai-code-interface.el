@@ -21,6 +21,11 @@
 (declare-function ai-code--process-word-for-filepath "ai-code-prompt-mode" (word git-root-truename))
 (declare-function ai-code-call-gptel-sync "ai-code-prompt-mode" (prompt))
 
+(defcustom ai-code-sed-command "sed"
+  "GNU sed command used to apply prompts to files."
+  :type 'string
+  :group 'ai-code)
+
 ;; Variables that will be defined in ai-code-interface.el
 (defvar ai-code-use-prompt-suffix)
 (defvar ai-code-prompt-suffix)
@@ -190,7 +195,8 @@ and runs it in a compilation buffer."
                      ((buffer-file-name)
                       (buffer-file-name))
                      (t (user-error "Cannot determine the file name"))))
-         (command (format "sed \"1i %s: \" %s | %s"
+         (command (format "%s \"1i %s: \" %s | %s"
+                          ai-code-sed-command
                           (shell-quote-argument prompt-with-suffix)
                           (shell-quote-argument file-name)
                           ai-code-cli)))
