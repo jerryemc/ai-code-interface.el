@@ -594,7 +594,6 @@ TDD refactor stage."
               (format "%s%s%s" feature-desc function-info file-info))))
       (ai-code--insert-prompt tdd-instructions))))
 
-
 (defun ai-code--tdd-green-stage (function-name)
   "Handle the Green stage of TDD for FUNCTION-NAME: Make the test pass.
 If current file is a test file (contains 'test' in name), provide prompt to fix code."
@@ -633,6 +632,30 @@ Checks for specific test runners (python-pytest, jest) and runs them if availabl
     (if (fboundp 'jest-popup)
         (jest-popup)
       (message "jest package is required for run js/ts test.")))
+   (t
+    (message "Test runner not supported for current mode: %s" major-mode))))
+
+;;;###autoload
+(defun ai-code-run-test ()
+  "Run tests based on the current buffer's mode.
+Checks for specific test runners (python-pytest, jest, ert) and runs them if available."
+  (interactive)
+  (cond
+   ((derived-mode-p 'python-mode)
+    (if (fboundp 'python-pytest-popup)
+        (python-pytest-popup)
+      (message "emacs-python-pytest package is required to run python test.")))
+   ((or (derived-mode-p 'js-mode)
+        (derived-mode-p 'js-ts-mode)
+        (derived-mode-p 'typescript-mode)
+        (derived-mode-p 'typescript-ts-mode)
+        (derived-mode-p 'rjsx-mode))
+    (if (fboundp 'jest-popup)
+        (jest-popup)
+      (message "jest package is required to run js/ts test.")))
+   ((derived-mode-p 'emacs-lisp-mode)
+    (require 'ert)
+    (ert t))
    (t
     (message "Test runner not supported for current mode: %s" major-mode))))
 
