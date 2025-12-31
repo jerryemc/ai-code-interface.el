@@ -1,4 +1,4 @@
-;;; ai-code.el --- Unified interface for multiple AI coding CLI tool -*- lexical-binding: t; -*-
+;;; ai-code-interface.el --- Unified interface for multiple AI coding CLI tool -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.73
@@ -105,7 +105,7 @@ ARG is the prefix argument."
                                 (string-match-p "\\S-" clipboard-context))
                            "Send to AI (clipboard context): "
                          "Send to AI: ")))
-    (when-let ((prompt (ai-code-read-string prompt-label initial-input)))
+    (when-let* ((prompt (ai-code-read-string prompt-label initial-input)))
       (let ((final-prompt (if (and clipboard-context
                                    (string-match-p "\\S-" clipboard-context))
                               (concat prompt
@@ -221,5 +221,5 @@ typically in your Emacs configuration with:
 
 (provide 'ai-code)
 
-;;; ai-code.el ends here
+;;; ai-code-interface.el ends here
 
