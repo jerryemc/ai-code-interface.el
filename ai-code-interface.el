@@ -219,7 +219,7 @@ typically in your Emacs configuration with:
       (define-key evil-normal-state-map (kbd "SPC")
         #'ai-code-spc-command-for-special-buffer-in-evil))))
 
-(provide 'ai-code)
+(provide 'ai-code-interface)
 
 ;;; ai-code-interface.el ends here
 
